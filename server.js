@@ -1,0 +1,53 @@
+// server.js
+// Purpose: The main entry point of the application.
+// Benefit: Sets up Express, connects to the database, registers middleware, and mounts routes.
+
+const express = require('express');
+
+// Load environment variables from config.env, such as PORT, DB_URL, and NODE_ENV.
+require('dotenv').config({ path: './config.env' })
+
+const dbConnect = require('./config/database');
+const userRoutes = require('./routes/userRout');
+const morgan = require('morgan')
+const mongoose = require('mongoose');
+
+// Connect to MongoDB before handling requests.
+dbConnect();
+
+
+
+
+
+
+const app = express();
+const port = process.env.PORT || 3000;
+const nodeEnv = process.env.NODE_ENV ;
+
+
+
+// Allow the app to read JSON data from request bodies.
+app.use(express.json());
+
+// In development mode, log request details in the terminal.
+if (nodeEnv === 'development') {
+  app.use(morgan('dev'))
+  console.log(`mode : ${nodeEnv}`)
+
+}
+ 
+
+
+// Mount user-related routes on the app.
+app.use(userRoutes);
+// app.post('/users', );   
+
+// Simple health route to check that the server is running.
+app.get('/', (req, res) => {
+  res.send('Hello World 2!');
+});
+
+// Start the server on the selected port.
+app.listen(port, () => {
+  console.log(`Server is running on http://localhost:${port}`);
+}); 
