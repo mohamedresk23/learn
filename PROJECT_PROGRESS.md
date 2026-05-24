@@ -2,15 +2,15 @@
 
 ## Version
 
-Current version: `0.1.0`
+Current version: `0.2.0`
 
-Last updated: `2026-05-23`
+Last updated: `2026-05-24`
 
 ## Overview
 
 This project is a simple Node.js and Express API connected to MongoDB using Mongoose.
 
-The current goal is to create a basic user API that can receive user data, validate it through a Mongoose model, and save it in the database.
+The current goal is to create a basic API that can receive user and category data, validate it through Mongoose models, and save it in the database.
 
 ## Tech Stack
 
@@ -21,6 +21,9 @@ The current goal is to create a basic user API that can receive user data, valid
 - dotenv
 - Morgan
 - Nodemon
+- slugify
+- express-async-handler
+- @kramerdev/express-async-error-handler
 
 ## Project Structure
 
@@ -28,10 +31,13 @@ The current goal is to create a basic user API that can receive user data, valid
 config/
   database.js
 models/
+  categoryModel.js
   userModel.js
 routes/
+  categoryRouts.js
   userRout.js
 services/
+  categoryServices.js
   userService.js
 server.js
 package.json
@@ -50,7 +56,7 @@ package.json
 GET /
 ```
 
-- Mounted user routes inside the Express app.
+- Mounted user and category routes inside the Express app.
 - Added server startup using `app.listen()`.
 
 ### Environment Variables
@@ -106,6 +112,47 @@ POST /users
 - Fixed the async/await issue by making the route handler an `async` function.
 - Added basic error handling with a `400` response.
 
+### Category Model
+
+- Created `models/categoryModel.js`.
+- Added a Mongoose schema for categories.
+- Current category fields:
+
+```text
+name        - required unique string with length validation
+description - optional string with length validation
+slug        - lowercase string used for URL-friendly category names
+```
+
+- Enabled timestamps so each category has `createdAt` and `updatedAt` fields.
+- Created and exported the `Category` model.
+
+### Category Routes
+
+- Created `routes/categoryRouts.js`.
+- Added an Express router for category endpoints.
+- Added the current category endpoints:
+
+```http
+POST /categories
+GET /categories
+GET /categories/:id
+PUT /categories/:id
+DELETE /categories/:id
+```
+
+- Connected the routes to the category service.
+- Exported the router so it can be used in `server.js`.
+
+### Category Service
+
+- Created `services/categoryServices.js`.
+- Added controller logic for category CRUD operations.
+- Used `slugify` to generate a URL-friendly slug from the category name.
+- Added pagination support for listing categories using `page` and `limit` query parameters.
+- Used `express-async-handler` to pass async errors to Express.
+- Added `404` responses when a category is not found.
+
 ### Code Comments
 
 - Added English comments to the main project files.
@@ -116,9 +163,19 @@ POST /users
 server.js
 config/database.js
 models/userModel.js
+models/categoryModel.js
 routes/userRout.js
+routes/categoryRouts.js
 services/userService.js
+services/categoryServices.js
 ```
+
+### Package Updates
+
+- Added `slugify` for generating category slugs.
+- Added `express-async-handler` for cleaner async category controllers.
+- Added `@kramerdev/express-async-error-handler`.
+- Added `pnpm-lock.yaml` alongside the existing npm lock file.
 
 ## Current API
 
@@ -150,6 +207,38 @@ Error response:
 400 Bad Request
 ```
 
+### Categories
+
+```http
+POST /categories
+GET /categories
+GET /categories/:id
+PUT /categories/:id
+DELETE /categories/:id
+```
+
+Example create request body:
+
+```json
+{
+  "name": "Electronics",
+  "description": "Products related to electronic devices"
+}
+```
+
+Success responses:
+
+```http
+200 OK
+201 Created
+```
+
+Not found response:
+
+```http
+404 Not Found
+```
+
 ## Current Scripts
 
 From `package.json`:
@@ -162,6 +251,17 @@ From `package.json`:
 ```
 
 ## Version History
+
+### `0.2.0` - 2026-05-24
+
+- Added category model with validation, slug support, and timestamps.
+- Added category routes for create, list, read, update, and delete operations.
+- Added category service/controller logic.
+- Added category pagination using `page` and `limit` query parameters.
+- Mounted category routes in `server.js`.
+- Added `slugify`, `express-async-handler`, and `@kramerdev/express-async-error-handler` dependencies.
+- Added English comments explaining the new category files.
+- Updated this progress documentation file.
 
 ### `0.1.0` - 2026-05-23
 
