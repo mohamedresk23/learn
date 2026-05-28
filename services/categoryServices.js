@@ -5,6 +5,7 @@
 const Category = require('../models/categoryModel');
 const slugify = require('slugify');
 const asyncHandler = require('express-async-handler');
+const apiError = require('../utils/apiErrors');
 
 // Create a new category from the request body and return the saved category.
 exports.createCategory = asyncHandler(async (req, res) => {
@@ -26,17 +27,18 @@ exports.getAllCategories = asyncHandler(async (req, res) => {
 });
 
 // Get a single category by ID from the database and return it as a JSON response.
-exports.getCategoryById = asyncHandler(async (req, res) => {
+exports.getCategoryById = asyncHandler(async (req, res, next) => {
   const { id } = req.params;
   const category = await Category.findById(id);
   if (!category) {
-    return res.status(404).json({ message: 'Category not found' });
+    // Pass not-found errors to the global error handler for a consistent API response.
+    return next(new apiError(`Category not found with id: ${ id }`, 404));
   }
   res.status(200).json(category);
 });
 
 // Update a category by ID with the request body and return the updated category.
-exports.updateCategory = asyncHandler(async (req, res) => {
+exports.updateCategory = asyncHandler(async (req, res, next) => {
   const { id } = req.params;
   const { name, description } = req.body;
 
@@ -47,18 +49,20 @@ exports.updateCategory = asyncHandler(async (req, res) => {
   );
 
   if (!updatedCategory) {
-    return res.status(404).json({ message: 'Category not found' });
+    // Use the shared API error class when the requested category does not exist.
+    return next(new apiError(`Category not found with id: ${ id }`, 404));
   }
 
   res.status(200).json(updatedCategory);
 });
 
 // Delete a category by ID from the database and return a success message.
-exports.deleteCategory = asyncHandler(async (req, res) => {
+exports.deleteCategory = asyncHandler(async (req, res, next) => {
   const { id } = req.params;
   const deletedCategory = await Category.findByIdAndDelete(id);
   if (!deletedCategory) {
-    return res.status(404).json({ message: 'Category not found' });
+    // Send missing category errors through the central middleware.
+    return next(new apiError(`Category not found with id: ${ id }`, 404));
   }
   res.status(200).json({ message: 'Category deleted successfully' });
 });

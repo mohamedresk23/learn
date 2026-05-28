@@ -2,9 +2,9 @@
 
 ## Version
 
-Current version: `0.2.0`
+Current version: `0.3.0`
 
-Last updated: `2026-05-24`
+Last updated: `2026-05-28`
 
 ## Overview
 
@@ -39,6 +39,10 @@ routes/
 services/
   categoryServices.js
   userService.js
+middlewares/
+  errorMiddleware.js
+utils/
+  apiErrors.js
 server.js
 package.json
 ```
@@ -58,6 +62,8 @@ GET /
 
 - Mounted user and category routes inside the Express app.
 - Added server startup using `app.listen()`.
+- Added a fallback route handler for unknown URLs.
+- Connected the fallback route to the global error handler.
 
 ### Environment Variables
 
@@ -76,6 +82,7 @@ DB_URL
 - Added a reusable `dbConnect` function.
 - Connected the app to MongoDB using `mongoose.connect(process.env.DB_URL)`.
 - Added success and error handling for the database connection.
+- Added a startup check that stops the app when `DB_URL` is missing.
 
 ### User Model
 
@@ -151,7 +158,16 @@ DELETE /categories/:id
 - Used `slugify` to generate a URL-friendly slug from the category name.
 - Added pagination support for listing categories using `page` and `limit` query parameters.
 - Used `express-async-handler` to pass async errors to Express.
-- Added `404` responses when a category is not found.
+- Replaced direct `404` category responses with shared `apiError` errors.
+
+### Error Handling
+
+- Created `utils/apiErrors.js`.
+- Added a reusable `apiError` class for operational API errors.
+- Created `middlewares/errorMiddleware.js`.
+- Added a global error handler that returns errors in one JSON response format.
+- Added handling for unknown routes using the same error flow.
+- Updated category read, update, and delete operations to pass missing-category errors to the global handler.
 
 ### Code Comments
 
@@ -168,6 +184,8 @@ routes/userRout.js
 routes/categoryRouts.js
 services/userService.js
 services/categoryServices.js
+middlewares/errorMiddleware.js
+utils/apiErrors.js
 ```
 
 ### Package Updates
@@ -239,6 +257,12 @@ Not found response:
 404 Not Found
 ```
 
+Unknown route response:
+
+```http
+404 Not Found
+```
+
 ## Current Scripts
 
 From `package.json`:
@@ -251,6 +275,17 @@ From `package.json`:
 ```
 
 ## Version History
+
+### `0.3.0` - 2026-05-28
+
+- Added a custom `apiError` class for consistent operational API errors.
+- Added a global Express error middleware.
+- Added unknown route handling in `server.js`.
+- Updated category not-found handling to use the shared error flow.
+- Added a `DB_URL` startup guard in the database connection.
+- Added comments explaining the new error handling changes.
+- Fixed `updateCategory` so it receives `next` before forwarding errors.
+- Updated this progress documentation file.
 
 ### `0.2.0` - 2026-05-24
 
@@ -282,7 +317,6 @@ From `package.json`:
   - `PATCH /users/:id`
   - `DELETE /users/:id`
 - Improve validation and error messages.
-- Add a global error handler.
 - Add API route prefix, such as `/api/v1`.
 - Add tests when the API grows.
 - Clean up formatting and unused imports.
