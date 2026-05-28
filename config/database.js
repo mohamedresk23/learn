@@ -5,6 +5,12 @@
 const mongoose = require('mongoose');
 
 const dbConnect = () => {
+  // Fail fast when the required database URL is missing instead of starting a broken server.
+  if (!process.env.DB_URL) {
+    console.error('Missing DB_URL in config.env');
+    process.exit(1);
+  }
+
   // Connect to MongoDB using the connection URL from environment variables.
   mongoose.connect(process.env.DB_URL).then((con) => {
     console.log(`Connected to MongoDB with host: ${ con.connection.host }`);

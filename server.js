@@ -12,6 +12,8 @@ const userRoutes = require('./routes/userRout');
 const categoryRoutes = require('./routes/categoryRouts');
 const morgan = require('morgan')
 const mongoose = require('mongoose');
+const apiError = require('./utils/apiErrors');
+const globalErrorHandler =require('./middlewares/errorMiddleware')
 
 // Connect to MongoDB before handling requests.
 dbConnect();
@@ -42,12 +44,23 @@ if (nodeEnv === 'development') {
 // Mount feature routes on the app.
 app.use(userRoutes);
 app.use(categoryRoutes);
-// app.post('/users', );   
+// app.post('/users', );
 
 // Simple health route to check that the server is running.
 app.get('/', (req, res) => {
   res.send('Hello World 2!');
 });
+
+
+app.use((req, res, next) => {
+  // Forward unknown routes to the shared error middleware instead of responding here.
+  next(new apiError(`Can't find this route: ${ req.originalUrl }`, 404));
+});
+
+// Central error handling middleware must be registered after all routes.
+app.use(
+ globalErrorHandler
+);
 
 // Start the server on the selected port.
 app.listen(port, () => {
