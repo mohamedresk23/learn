@@ -6,12 +6,30 @@ const express = require('express');
 
 const router = express.Router();
 
-const categoryService = require('../services/categoryServices');
+const {
+  createCategory,
+  getAllCategories,
+  getCategoryById,
+  updateCategory,
+  deleteCategory,
+} = require('../services/categoryServices');
+
+const {
+  getCategoryValidator,
+  createCategoryValidator,
+  updateCategoryValidator,
+  deleteCategoryValidator,
+} = require('../utils/validators/categoryValidator');
 
 // POST /categories creates a new category.
-router.route('/categories').post(categoryService.createCategory).get(categoryService.getAllCategories);
+router.route('/categories')
+  .post(createCategoryValidator, createCategory)
+  .get(getAllCategories);
 
-// GET /categories/:id gets a single category by ID.
-router.route('/categories/:id').get(categoryService.getCategoryById).delete(categoryService.deleteCategory).put(categoryService.updateCategory);
+// Category ID routes validate the :id param before calling the service layer.
+router.route('/categories/:id')
+  .get(getCategoryValidator, getCategoryById)
+  .delete(deleteCategoryValidator, deleteCategory)
+  .put(updateCategoryValidator, updateCategory);
 
 module.exports = router;

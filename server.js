@@ -66,3 +66,12 @@ app.use(
 app.listen(port, () => {
   console.log(`Server is running on http://localhost:${port}`);
 }); 
+
+// Events
+process.on('unhandledRejection', (err) => {
+  console.error(`Unhandled Rejection: ${err.name}\n${err.message}\n${err.stack}`); 
+  server.close(() => {
+    console.log(`Shutting down the server due to unhandled rejection`);
+    process.exit(1);
+  });   
+}); 

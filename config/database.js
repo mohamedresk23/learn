@@ -12,12 +12,14 @@ const dbConnect = () => {
   }
 
   // Connect to MongoDB using the connection URL from environment variables.
-  mongoose.connect(process.env.DB_URL).then((con) => {
+  mongoose.connect(process.env.DB_URL).
+  then((con) => {
     console.log(`Connected to MongoDB with host: ${ con.connection.host }`);
-  }).catch((err) => {
-    console.error('Error connecting to MongoDB:', err);
-    process.exit(1); // Stop the app if the database connection fails.
-  });
+  })
+  // .catch((err) => {
+  //   console.error('Error connecting to MongoDB:', err);
+  //   process.exit(1); // Stop the app if the database connection fails.
+  // });
 }
 
 module.exports = dbConnect;
