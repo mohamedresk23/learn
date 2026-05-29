@@ -2,9 +2,9 @@
 
 ## Version
 
-Current version: `0.3.0`
+Current version: `0.4.0`
 
-Last updated: `2026-05-28`
+Last updated: `2026-05-29`
 
 ## Overview
 
@@ -24,6 +24,7 @@ The current goal is to create a basic API that can receive user and category dat
 - slugify
 - express-async-handler
 - @kramerdev/express-async-error-handler
+- express-validator
 
 ## Project Structure
 
@@ -41,8 +42,11 @@ services/
   userService.js
 middlewares/
   errorMiddleware.js
+  validatorMiddleware.js
 utils/
   apiErrors.js
+  validators/
+    categoryValidator.js
 server.js
 package.json
 ```
@@ -149,7 +153,35 @@ DELETE /categories/:id
 ```
 
 - Connected the routes to the category service.
+- Connected category routes to the express-validator validation layer.
 - Exported the router so it can be used in `server.js`.
+
+### Category Validation
+
+- Created `utils/validators/categoryValidator.js`.
+- Added route validation rules using `express-validator`.
+- Added validation for category MongoDB IDs on:
+
+```http
+GET /categories/:id
+PUT /categories/:id
+DELETE /categories/:id
+```
+
+- Added create category validation for:
+
+```text
+name        - required string between 3 and 50 characters
+description - optional string between 10 and 200 characters
+```
+
+- Added update category validation for:
+
+```text
+id          - valid MongoDB ObjectId
+name        - optional string between 3 and 50 characters
+description - optional string between 10 and 200 characters
+```
 
 ### Category Service
 
@@ -168,6 +200,7 @@ DELETE /categories/:id
 - Added a global error handler that returns errors in one JSON response format.
 - Added handling for unknown routes using the same error flow.
 - Updated category read, update, and delete operations to pass missing-category errors to the global handler.
+- Created `middlewares/validatorMiddleware.js` to return `400 Bad Request` when express-validator finds invalid request data.
 
 ### Code Comments
 
@@ -185,7 +218,9 @@ routes/categoryRouts.js
 services/userService.js
 services/categoryServices.js
 middlewares/errorMiddleware.js
+middlewares/validatorMiddleware.js
 utils/apiErrors.js
+utils/validators/categoryValidator.js
 ```
 
 ### Package Updates
@@ -193,6 +228,7 @@ utils/apiErrors.js
 - Added `slugify` for generating category slugs.
 - Added `express-async-handler` for cleaner async category controllers.
 - Added `@kramerdev/express-async-error-handler`.
+- Added `express-validator` for route-level request validation.
 - Added `pnpm-lock.yaml` alongside the existing npm lock file.
 
 ## Current API
@@ -220,6 +256,12 @@ Success response:
 ```
 
 Error response:
+
+```http
+400 Bad Request
+```
+
+Validation error response:
 
 ```http
 400 Bad Request
@@ -263,6 +305,8 @@ Unknown route response:
 404 Not Found
 ```
 
+Category validation currently checks request data before the service layer runs. Invalid category IDs or invalid category body fields return `400 Bad Request`.
+
 ## Current Scripts
 
 From `package.json`:
@@ -275,6 +319,17 @@ From `package.json`:
 ```
 
 ## Version History
+
+### `0.4.0` - 2026-05-29
+
+- Added `express-validator` validation rules for category routes.
+- Added `utils/validators/categoryValidator.js`.
+- Added `middlewares/validatorMiddleware.js`.
+- Validated category IDs before read, update, and delete operations.
+- Validated category create and update request bodies.
+- Updated category routes to use validator middleware before service handlers.
+- Added comments explaining the new validation files.
+- Updated this progress documentation file.
 
 ### `0.3.0` - 2026-05-28
 
@@ -316,7 +371,7 @@ From `package.json`:
   - `GET /users/:id`
   - `PATCH /users/:id`
   - `DELETE /users/:id`
-- Improve validation and error messages.
+- Improve validation and error messages for user routes.
 - Add API route prefix, such as `/api/v1`.
 - Add tests when the API grows.
 - Clean up formatting and unused imports.
