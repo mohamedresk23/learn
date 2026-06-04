@@ -21,7 +21,7 @@ exports.createCategoryValidator = [
 // Validate category ID and optional update fields before updating a category.
 exports.updateCategoryValidator = [
   check('id').isMongoId().withMessage('Invalid category ID'),
-  check('name').optional().isLength({ min: 3, max: 50 }).withMessage('Name must be between 3 and 50 characters'),     
+  check('name').optional().isLength({ min: 3, max: 50 }).withMessage('Name must be between 3 and 50 characters'),
   check('description').optional().isLength({ min: 10, max: 200 }).withMessage('Description must be between 10 and 200 characters'),
   validatorMiddleware
 ];
