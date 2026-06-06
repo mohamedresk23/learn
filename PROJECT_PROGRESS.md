@@ -2,9 +2,9 @@
 
 ## Version
 
-Current version: `0.4.0`
+Current version: `0.5.0`
 
-Last updated: `2026-05-29`
+Last updated: `2026-06-06`
 
 ## Overview
 
@@ -25,6 +25,8 @@ The current goal is to create a basic API that can receive user and category dat
 - express-async-handler
 - @kramerdev/express-async-error-handler
 - express-validator
+- ESLint
+- Prettier
 
 ## Project Structure
 
@@ -33,6 +35,7 @@ config/
   database.js
 models/
   categoryModel.js
+  subCategoryModel.js
   userModel.js
 routes/
   categoryRouts.js
@@ -49,6 +52,7 @@ utils/
     categoryValidator.js
 server.js
 package.json
+.eslintrc.json
 ```
 
 ## What Has Been Done
@@ -138,6 +142,21 @@ slug        - lowercase string used for URL-friendly category names
 - Enabled timestamps so each category has `createdAt` and `updatedAt` fields.
 - Created and exported the `Category` model.
 
+### SubCategory Model
+
+- Created `models/subCategoryModel.js`.
+- Added a Mongoose schema for subcategories.
+- Current subcategory fields:
+
+```text
+name     - unique string with trim and length validation
+slug     - lowercase URL-friendly subcategory name
+category - required ObjectId reference to the parent Category
+```
+
+- Enabled timestamps so each subcategory has `createdAt` and `updatedAt` fields.
+- Created and exported the `SubCategory` model.
+
 ### Category Routes
 
 - Created `routes/categoryRouts.js`.
@@ -221,6 +240,8 @@ middlewares/errorMiddleware.js
 middlewares/validatorMiddleware.js
 utils/apiErrors.js
 utils/validators/categoryValidator.js
+models/subCategoryModel.js
+.eslintrc.json
 ```
 
 ### Package Updates
@@ -230,6 +251,14 @@ utils/validators/categoryValidator.js
 - Added `@kramerdev/express-async-error-handler`.
 - Added `express-validator` for route-level request validation.
 - Added `pnpm-lock.yaml` alongside the existing npm lock file.
+- Added ESLint, Airbnb config, Node plugin, Prettier config, and related linting plugins.
+- Added `cross-env` for setting production environment variables in npm scripts.
+
+### Linting Configuration
+
+- Created `.eslintrc.json`.
+- Extended Airbnb, Prettier, and Node recommended linting rules.
+- Added project-specific rule overrides for console logging, process exit usage, underscore fields, and selected warning levels.
 
 ## Current API
 
@@ -313,12 +342,23 @@ From `package.json`:
 
 ```json
 {
-  "dev": "nodemon server.js",
+  "start:dev": "nodemon server.js",
+  "start:prod": "cross-env NODE_ENV=production node server.js",
   "test": "echo \"Error: no test specified\" && exit 1"
 }
 ```
 
 ## Version History
+
+### `0.5.0` - 2026-06-06
+
+- Added `models/subCategoryModel.js`.
+- Added the subcategory schema with name, slug, and parent category reference fields.
+- Added English comments explaining the subcategory model.
+- Added `.eslintrc.json` for ESLint, Airbnb, Prettier, and Node linting rules.
+- Added linting and formatting dev dependencies.
+- Added `cross-env` and production startup script support.
+- Updated this progress documentation file.
 
 ### `0.4.0` - 2026-05-29
 
