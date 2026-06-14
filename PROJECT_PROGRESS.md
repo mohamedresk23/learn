@@ -2,15 +2,16 @@
 
 ## Version
 
-Current version: `0.5.0`
+Current version: `0.6.0`
 
-Last updated: `2026-06-06`
+Last updated: `2026-06-14`
 
 ## Overview
 
 This project is a simple Node.js and Express API connected to MongoDB using Mongoose.
 
 The current goal is to create a basic API that can receive user and category data, validate it through Mongoose models, and save it in the database.
+Subcategories can now be created and linked to existing parent categories.
 
 ## Tech Stack
 
@@ -39,9 +40,11 @@ models/
   userModel.js
 routes/
   categoryRouts.js
+  subCategoryRouts.js
   userRout.js
 services/
   categoryServices.js
+  subCategoryService.js
   userService.js
 middlewares/
   errorMiddleware.js
@@ -50,6 +53,7 @@ utils/
   apiErrors.js
   validators/
     categoryValidator.js
+    subCategoryValidator.js
 server.js
 package.json
 .eslintrc.json
@@ -68,7 +72,7 @@ package.json
 GET /
 ```
 
-- Mounted user and category routes inside the Express app.
+- Mounted user, category, and subcategory routes inside the Express app.
 - Added server startup using `app.listen()`.
 - Added a fallback route handler for unknown URLs.
 - Connected the fallback route to the global error handler.
@@ -202,6 +206,31 @@ name        - optional string between 3 and 50 characters
 description - optional string between 10 and 200 characters
 ```
 
+### SubCategory Routes
+
+- Created `routes/subCategoryRouts.js`.
+- Added an Express router for subcategory endpoints.
+- Added the current subcategory endpoint:
+
+```http
+POST /subcategories
+```
+
+- Connected the route to the subcategory service.
+- Connected subcategory routes to the express-validator validation layer.
+- Exported the router so it can be used in `server.js`.
+
+### SubCategory Validation
+
+- Created `utils/validators/subCategoryValidator.js`.
+- Added route validation rules using `express-validator`.
+- Added create subcategory validation for:
+
+```text
+name     - required string between 3 and 50 characters
+category - required valid MongoDB ObjectId
+```
+
 ### Category Service
 
 - Created `services/categoryServices.js`.
@@ -210,6 +239,14 @@ description - optional string between 10 and 200 characters
 - Added pagination support for listing categories using `page` and `limit` query parameters.
 - Used `express-async-handler` to pass async errors to Express.
 - Replaced direct `404` category responses with shared `apiError` errors.
+
+### SubCategory Service
+
+- Created `services/subCategoryService.js`.
+- Added controller logic for creating subcategories.
+- Checked that the parent category exists before creating a subcategory.
+- Used `slugify` to generate a URL-friendly slug from the subcategory name.
+- Used the shared `apiError` class when the requested parent category does not exist.
 
 ### Error Handling
 
@@ -234,12 +271,15 @@ models/userModel.js
 models/categoryModel.js
 routes/userRout.js
 routes/categoryRouts.js
+routes/subCategoryRouts.js
 services/userService.js
 services/categoryServices.js
+services/subCategoryService.js
 middlewares/errorMiddleware.js
 middlewares/validatorMiddleware.js
 utils/apiErrors.js
 utils/validators/categoryValidator.js
+utils/validators/subCategoryValidator.js
 models/subCategoryModel.js
 .eslintrc.json
 ```
@@ -336,6 +376,41 @@ Unknown route response:
 
 Category validation currently checks request data before the service layer runs. Invalid category IDs or invalid category body fields return `400 Bad Request`.
 
+### SubCategories
+
+```http
+POST /subcategories
+```
+
+Example create request body:
+
+```json
+{
+  "name": "Mobile Phones",
+  "category": "665f0c2f8c4a8b0012ab3456"
+}
+```
+
+Success response:
+
+```http
+201 Created
+```
+
+Validation error response:
+
+```http
+400 Bad Request
+```
+
+Missing parent category response:
+
+```http
+404 Not Found
+```
+
+Subcategory validation currently checks the subcategory name and parent category ID before the service layer runs.
+
 ## Current Scripts
 
 From `package.json`:
@@ -349,6 +424,17 @@ From `package.json`:
 ```
 
 ## Version History
+
+### `0.6.0` - 2026-06-14
+
+- Added `routes/subCategoryRouts.js`.
+- Added `services/subCategoryService.js`.
+- Added `utils/validators/subCategoryValidator.js`.
+- Mounted subcategory routes in `server.js`.
+- Added subcategory creation linked to an existing parent category.
+- Added request validation for creating subcategories.
+- Added English comments explaining the new subcategory route and service files.
+- Updated this progress documentation file.
 
 ### `0.5.0` - 2026-06-06
 

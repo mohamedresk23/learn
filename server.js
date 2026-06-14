@@ -1,6 +1,6 @@
 // server.js
 // Purpose: The main entry point of the application.
-// Benefit: Sets up Express, connects to the database, registers middleware, and mounts user/category routes.
+// Benefit: Sets up Express, connects to the database, registers middleware, and mounts user/category/subcategory routes.
 
 const express = require('express');
 
@@ -10,6 +10,7 @@ require('dotenv').config({ path: './config.env' })
 const dbConnect = require('./config/database');
 const userRoutes = require('./routes/userRout');
 const categoryRoutes = require('./routes/categoryRouts');
+const subCategoryRoutes = require('./routes/subCategoryRouts'); 
 const morgan = require('morgan')
 const mongoose = require('mongoose');
 const apiError = require('./utils/apiErrors');
@@ -44,6 +45,7 @@ if (nodeEnv === 'development') {
 // Mount feature routes on the app.
 app.use(userRoutes);
 app.use(categoryRoutes);
+app.use(subCategoryRoutes);
 // app.post('/users', );
 
 // Simple health route to check that the server is running.
